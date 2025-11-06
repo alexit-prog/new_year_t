@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>New Year Target</title>
+    <style>
+        /* ===== БАЗОВЫЕ СТИЛИ ===== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height:100vh; color:#e0e0e0; overflow-x:auto; position:relative;
+        }
+        body::before{
+            content:''; position:fixed; inset:0;
+            background:
+              radial-gradient(ellipse at top, rgba(59,130,246,.1), transparent 50%),
+              radial-gradient(ellipse at bottom, rgba(99,102,241,.1), transparent 50%);
+            pointer-events:none;
+        }
+        .container{ padding:15px 20px; max-width:100%; }
+
+        /* ===== ГИРЛЯНДЫ ВОЛНОЙ ===== */
+        .garland {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .garland-top {
+            top: 10px;
+            left: 0;
+            transform: none;
+            width: 100%;
+            justify-content: space-around;
+            padding: 0 20px;
+        }
+        
+        .garland-bulb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            position: relative;
+            animation: swing 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        .garland-bulb::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 15px;
+            background: #2d5016;
+        }
+        
+        @keyframes swing {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(8px) rotate(3deg); }
+        }
+        
+        .garland-bulb.red { background: #ff0000; color: #ff0000; animation-delay: 0s; }
+        .garland-bulb.yellow { background: #ffd700; color: #ffd700; animation-delay: 0.2s; }
+        .garland-bulb.blue { background: #0088ff; color: #0088ff; animation-delay: 0.4s; }
+        .garland-bulb.green { background: #00ff00; color: #00ff00; animation-delay: 0.6s; }
+        .garland-bulb.purple { background: #ff00ff; color: #ff00ff; animation-delay: 0.8s; }
+        .garland-bulb.orange { background: #ff8800; color: #ff8800; animation-delay: 1s; }
+        
+        .garland-bulb.blink {
+            animation: swing 3s ease-in-out infinite, blink-light 2s infinite;
+        }
+        
+        @keyframes blink-light {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ===== ШАПКА ===== */
+        .header{
+            display:flex; justify-content:center; align-items:center;
+            margin-bottom:20px; animation:fadeInDown 1s ease; gap:20px; flex-wrap:wrap;
+            margin-top: 50px;
+        }
+        .header h1{
+            font-size:3em; text-shadow:0 0 20px rgba(147,197,253,.5);
+            background:linear-gradient(90deg, #60a5fa, #93c5fd, #60a5fa);
+            background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            animation:shine 3s linear infinite; flex:0 1 auto; text-align:center;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* ===== ДОСКА ===== */
+        .board-container{
+            display:flex; padding:15px 0; min-height:300px; align-items:flex-start; width:100%;
+        }
+        .board-column{
+            flex:1; min-width:0;
+            background:linear-gradient(135deg, rgba(30,41,59,.7), rgba(15,23,42,.8));
+            backdrop-filter:blur(10px); border-radius:20px; padding:15px;
+            animation:slideInUp .8s ease; border:1px solid rgba(99,102,241,.2);
+            box-shadow:0 8px 32px rgba(0,0,0,.5), inset 0 0 30px rgba(59,130,246,.05);
+            position:relative; max-height:85vh; overflow-y:auto;
+        }
+
+        /* ===== КАРТОЧКА ЭЛЕМЕНТА ===== */
+        .agent-card{ 
+            background:rgba(30,41,59,.6); border-radius:10px; padding:10px 11px; margin-bottom:12px;
+            position:relative; transition:all .3s ease; border:1px solid rgba(99,102,241,.2); overflow:visible; 
+        }
+        .agent-card:hover{ transform:translateY(-2px) scale(1.02); box-shadow:0 10px 30px rgba(59,130,246,.3); border-color:rgba(99,102,241,.5); }
+        .agent-card.gold{ background:linear-gradient(135deg, rgba(251,191,36,.2), rgba(245,158,11,.3)); border:1px solid #fbbf24; box-shadow:0 0 25px rgba(251,191,36,.5), inset 0 0 15px rgba(251,191,36,.2); }
+        .agent-card.silver{ background:linear-gradient(135deg, rgba(156,163,175,.2), rgba(107,114,128,.3)); border:1px solid #9ca3af; box-shadow:0 0 20px rgba(156,163,175,.5), inset 0 0 15px rgba(156,163,175,.2); }
+        .agent-card.bronze{ background:linear-gradient(135deg, rgba(217,119,6,.2), rgba(180,83,9,.3)); border:1px solid #d97706; box-shadow:0 0 20px rgba(217,119,6,.5), inset 0 0 15px rgba(217,119,6,.2); }
+        
+        .medal{ position:absolute; top:-7px; right:-7px; width:34px; height:34px; font-size:22px; animation:bounce 2s infinite; filter:drop-shadow(0 0 10px rgba(255,255,255,.5)); z-index:2; }
+        @keyframes bounce { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-10px) rotate(10deg)} }
+
+        /* ===== НОВОГОДНЯЯ ШАПКА ДЛЯ 100% ===== */
+        .santa-hat {
+            position: absolute;
+            top: -10px;
+            left: 5px;
+            width: 32px;
+            height: 32px;
+            animation: swingHat 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,.8));
+            z-index: 100;
+        }
+        .santa-hat img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        @keyframes swingHat {
+            0%, 100% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+        }
+
+        .agent-info{ display:flex; flex-direction:column; gap:7px; position:relative; z-index:1; }
+        .agent-name-row{ 
+            display:grid; 
+            grid-template-columns: 190px 1fr; 
+            align-items:center; 
+            gap:10px; 
+        }
+        .agent-name{ 
+            font-weight:bold; 
+            font-size:0.91em; 
+            color:#e0e0e0; 
+            word-break:break-word;
+            position: relative;
+        }
+
+        .progress-bar-container{ 
+            display:flex; 
+            align-items:center; 
+            gap:8px; 
+            position: relative;
+        }
+        .progress-bar{
+            flex:1; height:26px; background:rgba(30,41,59,.8); border-radius:15px; overflow:visible; position:relative; border:1px solid rgba(99,102,241,.3);
+        }
+        .progress-bar-fill{
+            height:100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa, #818cf8);
+            border-radius:15px; transition:width .8s ease, background .3s ease; position:relative; overflow:visible;
+        }
+        .progress-bar-fill::after{
+            content:''; position:absolute; inset:0; left:-100%;
+            background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+            animation:shimmer 2s infinite;
+        }
+        @keyframes shimmer { 0%{left:-100%} 100%{left:100%} }
+        .progress-value{ font-size:.72em; font-weight:bold; color:#60a5fa; min-width:144px; text-align:right; }
+
+        /* ===== ДЕД МОРОЗ ПОВЕРХ ПРОГРЕСС-БАРА ===== */
+        .santa-claus {
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 35px;
+            height: 36px;
+            z-index: 10;
+            transition: all .8s ease;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+            pointer-events: none;
+        }
+        .santa-claus img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .count-increase{ animation:countSuperPulse 2s ease; }
+        @keyframes countSuperPulse{
+            0%{transform:scale(1) rotate(0); box-shadow:0 0 10px rgba(96,165,250,.5)}
+            15%{transform:scale(1.4) rotate(10deg); box-shadow:0 0 30px rgba(52,211,153,.9)}
+            30%{transform:scale(1.6) rotate(-10deg); box-shadow:0 0 40px rgba(251,191,36,1)}
+            50%{transform:scale(1.4) rotate(10deg); box-shadow:0 0 35px rgba(167,139,250,.9)}
+            70%{transform:scale(1.2) rotate(-5deg); box-shadow:0 0 25px rgba(96,165,250,.8)}
+            100%{transform:scale(1) rotate(0); box-shadow:0 0 10px rgba(96,165,250,.5)}
+        }
+
+        /* ===== АНИМАЦИЯ СНЕГА ===== */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 9999;
+            pointer-events: none;
+            color: #fff;
+            font-size: 1em;
+            opacity: 0.8;
+            animation: snowfall linear infinite;
+        }
+
+        @keyframes snowfall {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) translateX(50px) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        /* Остальные стили */
+        .sound-control{ position:fixed; bottom:20px; right:20px; z-index:1000; background:linear-gradient(135deg, rgba(59,130,246,.8), rgba(99,102,241,.9));
+            border-radius:50%; width:60px; height:60px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+            border:2px solid rgba(147,197,253,.5); box-shadow:0 0 20px rgba(59,130,246,.5); transition:all .3s ease; font-size:24px; }
+        .sound-control:hover{ transform:scale(1.1); box-shadow:0 0 30px rgba(59,130,246,.7); }
+
+        .celebration{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:6em; z-index:1000; pointer-events:none; animation:celebration 2s ease-out forwards; filter:drop-shadow(0 0 20px rgba(255,255,255,.8)); }
+        @keyframes celebration{ 0%{ transform:translate(-50%,-50%) scale(0) rotate(0); opacity:1 }
+            50%{ transform:translate(-50%,-50%) scale(2.5) rotate(180deg); opacity:1 }
+            100%{ transform:translate(-50%,-50%) scale(4) rotate(360deg); opacity:0 } }
+
+        .agent-announcement{ position:fixed; top:30%; left:50%; transform:translate(-50%,-50%); font-size:3em; font-weight:bold; z-index:1001; pointer-events:none;
+            animation:announceSlide 3.5s ease-out forwards; text-shadow:0 0 30px rgba(96,165,250,.8), 0 0 60px rgba(59,130,246,.6);
+            background:linear-gradient(90deg, #60a5fa, #93c5fd, #60a5fa); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            text-align:center; padding:20px 40px; border-radius:20px; backdrop-filter:blur(10px); }
+        @keyframes announceSlide{
+            0%{ transform:translate(-50%,-50%) scale(0) rotate(-180deg); opacity:0 }
+            20%{ transform:translate(-50%,-50%) scale(1.3) rotate(10deg); opacity:1 }
+            70%{ transform:translate(-50%,-50%) scale(1) rotate(0); opacity:1 }
+            100%{ transform:translate(-50%,-50%) scale(.6) rotate(0); opacity:0 } }
+
+        .sale-amount-popup{ position:fixed; top:45%; left:50%; transform:translate(-50%,-50%); font-size:4em; font-weight:bold; z-index:1002; pointer-events:none;
+            animation:saleAmountPop 3.5s ease-out forwards; color:#34d399; text-shadow:0 0 40px rgba(52,211,153,.9), 0 0 80px rgba(16,185,129,.7); display:flex; align-items:center; gap:15px; }
+        @keyframes saleAmountPop{
+            0%{ transform:translate(-50%,-50%) scale(0) rotate(-20deg); opacity:0 }
+            15%{ transform:translate(-50%,-50%) scale(1.3) rotate(5deg); opacity:1 }
+            70%{ transform:translate(-50%,-50%) scale(1) rotate(0); opacity:1 }
+            100%{ transform:translate(-50%,-50%) scale(.5) rotate(0); opacity:0 } }
+
+        .confetti{ position:fixed; width:10px; height:10px; z-index:998; pointer-events:none; }
+        .confetti-piece{ position:absolute; width:100%; height:100%; background:linear-gradient(135deg,#60a5fa,#a78bfa); animation:confettiFall 3s ease-out forwards; }
+        @keyframes confettiFall{ 0%{ transform:translateY(-100vh) rotate(0); opacity:1 } 100%{ transform:translateY(100vh) rotate(720deg); opacity:0 } }
+
+        .money{ position:fixed; width:80px; height:40px; background:linear-gradient(135deg, #10b981, #059669); border-radius:5px; z-index:997; pointer-events:none;
+            font-size:24px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; box-shadow:0 4px 15px rgba(16,185,129,.6);
+            animation:moneyFall 4s ease-out forwards; border:2px solid #34d399; }
+        @keyframes moneyFall{ 0%{ transform:translateY(-100px) rotate(0) scale(0); opacity:1 } 20%{ transform:translateY(0) rotate(180deg) scale(1) }
+            100%{ transform:translateY(100vh) rotate(720deg) scale(.8); opacity:0 } }
+
+        .firework{ position:fixed; width:5px; height:5px; background:#fbbf24; border-radius:50%; z-index:996; pointer-events:none; box-shadow:0 0 15px #fbbf24; animation:fireworkLaunch 1.2s ease-out forwards; }
+        @keyframes fireworkLaunch{ 0%{ transform:translateY(100vh) scale(1); opacity:1 } 100%{ transform:translateY(-150px) scale(0); opacity:0 } }
+        .spark{ position:absolute; width:4px; height:4px; background:radial-gradient(circle,#fbbf24,#f59e0b); border-radius:50%; animation:sparkBurst 1.8s ease-out forwards; box-shadow:0 0 10px currentColor; }
+        @keyframes sparkBurst{ 0%{ transform:translate(0,0) scale(0); opacity:1 } 100%{ transform:translate(var(--x), var(--y)) scale(1); opacity:0 } }
+
+        .loading{ text-align:center; padding:50px; font-size:1.5em; color:#60a5fa; text-shadow:0 0 20px rgba(96,165,250,.5); }
+        .error{ background:rgba(239,68,68,.2); border:2px solid #ef4444; border-radius:10px; padding:20px; margin:20px; text-align:center; box-shadow:0 0 20px rgba(239,68,68,.3); }
+
+        .update-time{ text-align:center; margin-top:20px; opacity:.5; font-size:.8em; color:#64748b; }
+
+        @media screen and (max-width:768px){
+            .header h1{ font-size:2em; }
+            .board-container{ flex-direction:column; gap:10px; }
+            .board-column{ flex:none; max-height:400px; }
+            .progress-value{ min-width:96px; }
+            .santa-claus { width: 28px; height: 29px; }
+            .agent-name-row{ grid-template-columns: 120px 1fr; gap:7px; }
+            .santa-hat { width: 26px; height: 26px; top: -24px; left: 3px; }
+        }
+
+        @keyframes fadeInDown{ from{opacity:0; transform:translateY(-30px)} to{opacity:1; transform:translateY(0)} }
+        @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+        @keyframes slideInUp{ from{opacity:0; transform:translateY(30px)} to{opacity:1; transform:translateY(0)} }
+
+        ::-webkit-scrollbar{ height:10px; width:8px; }
+        ::-webkit-scrollbar-track{ background:rgba(30,41,59,.5); border-radius:10px; }
+        ::-webkit-scrollbar-thumb{ background:linear-gradient(135deg, #3b82f6, #6366f1); border-radius:10px; }
+        ::-webkit-scrollbar-thumb:hover{ background:linear-gradient(135deg, #60a5fa, #818cf8); }
+        .board-column::-webkit-scrollbar{ width:6px; }
+        .board-column::-webkit-scrollbar-track{ background:rgba(30,41,59,.3); }
+        .board-column::-webkit-scrollbar-thumb{ background:rgba(99,102,241,.5); }
+    </style>
+</head>
+<body>
+<!-- Гирлянда волной сверху -->
+<div class="garland garland-top" id="garlandTop"></div>
+
+<div class="container">
+    <div class="header">
+        <h1>🎄 New Year Target 🎄</h1>
+    </div>
+
+    <div id="boardContainer" class="board-container">
+        <div class="loading">Загрузка данных...</div>
+    </div>
+
+    <div class="update-time" id="updateTime">Последнее обновление: -</div>
+</div>
+
+<div class="sound-control muted" id="soundControl" title="Включить/выключить звук">🔇</div>
+<audio id="achievementSound" preload="auto">
+    <source src="https://raw.githubusercontent.com/exellentyes-hue/sales-leaderboard/main/videoplayback.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* === НАСТРОЙКИ === */
+const SHEET_ID = '1Yn7-72zCj9AnQN8FwACsDzIW63rhR3UBgD8MwVGf4Bs';
+const API_KEY  = 'AIzaSyC7OcXNDypZTrqYIHhNImFdvhtKnxa5lvE';
+const SHEET_NAME = 'Аркуш1';
+const DEFAULT_TARGET = 100;
+
+const SANTA_IMAGE_URL = 'https://i.imgur.com/m8A1WHm.png';
+const SANTA_HAT_URL = 'https://i.imgur.com/8virFlX.png';
+
+/* === СЛУЖЕБНЫЕ ПЕРЕМЕННЫЕ === */
+let previousData = {};
+let soundEnabled = false;
+let isFirstLoad = true;
+
+/* === ГИРЛЯНДА ВОЛНОЙ === */
+function createGarland() {
+    const garland = document.getElementById('garlandTop');
+    const colors = ['red', 'yellow', 'blue', 'green', 'purple', 'orange'];
+    const numBulbs = 50;
+    
+    for (let i = 0; i < numBulbs; i++) {
+        const bulb = document.createElement('div');
+        bulb.className = `garland-bulb ${colors[i % colors.length]} blink`;
+        bulb.style.animationDelay = (i * 0.1) + 's';
+        garland.appendChild(bulb);
+    }
+}
+
+/* === СНЕГ === */
+function createContinuousSnow() {
+    const snowflakes = ['❄', '❅', '❆'];
+    
+    setInterval(() => {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+        snowflake.style.left = Math.random() * 100 + '%';
+        snowflake.style.animationDuration = (Math.random() * 4 + 6) + 's';
+        snowflake.style.fontSize = (Math.random() * 0.5 + 0.5) + 'em';
+        snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+        
+        document.body.appendChild(snowflake);
+        
+        setTimeout(() => {
+            snowflake.remove();
+        }, parseFloat(snowflake.style.animationDuration) * 1000);
+    }, 200);
+}
+
+/* === ЗВУК === */
+document.getElementById('soundControl').addEventListener('click', function () {
+    soundEnabled = !soundEnabled;
+    const soundControl = document.getElementById('soundControl');
+    const audio = document.getElementById('achievementSound');
+
+    if (soundEnabled) {
+        soundControl.classList.remove('muted');
+        soundControl.textContent = '🔊';
+        audio.volume = 0.1;
+        audio.play().then(() => {
+            audio.pause();
+            audio.currentTime = 0;
+            audio.volume = 1;
+        }).catch(() => {});
+    } else {
+        soundControl.classList.add('muted');
+        soundControl.textContent = '🔇';
+    }
+});
+
+/* === ЗАГРУЗКА ДАННЫХ === */
+async function fetchData() {
+    try {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SHEET_NAME)}?key=${API_KEY}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Ошибка при получении данных');
+        const json = await res.json();
+        return processData(json.values);
+    } catch (e) {
+        console.error(e);
+        showError('Не удалось загрузить данные. Проверьте подключение и доступ к листу.');
+        return null;
+    }
+}
+
+function idxOf(headers, ...cands) {
+    if (!headers) return -1;
+    const norm = headers.map(h => String(h||'').trim().toLowerCase());
+    for (const c of cands) {
+        const i = norm.indexOf(String(c).toLowerCase());
+        if (i !== -1) return i;
+    }
+    return -1;
+}
+
+function toInt(v) {
+    const n = parseInt(String(v||'').replace(/\s+/g,''));
+    return Number.isFinite(n) ? n : 0;
+}
+
+function slugify(str) {
+    return String(str||'')
+        .toLowerCase()
+        .replace(/[^a-z0-9а-яё_-]+/gi, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+}
+
+function processData(values) {
+    if (!values || values.length < 2) return null;
+
+    const headers = values[0];
+    const rows = values.slice(1);
+
+    const idxStage  = idxOf(headers, 'stage', 'этап', 'name', 'агент') !== -1 ? idxOf(headers, 'stage','этап','name','агент') : 1;
+    const idxCount  = idxOf(headers, 'count', 'счет', 'счёт', 'кол-во', 'количество') !== -1 ? idxOf(headers, 'count','счет','счёт','кол-во','количество') : 2;
+    const idxTarget = idxOf(headers, 'target', 'цель');
+    const items = [];
+
+    rows.forEach(row => {
+        const stage  = row[idxStage] ?? '';
+        const count  = toInt(row[idxCount]);
+        const target = idxTarget !== -1 ? (toInt(row[idxTarget]) || DEFAULT_TARGET) : DEFAULT_TARGET;
+
+        if (String(stage).trim() !== '') {
+            items.push({
+                stage: stage,
+                count: count,
+                target: target,
+                ratio: target > 0 ? count / target : 0,
+                key: slugify(stage)
+            });
+        }
+    });
+
+    items.sort((a,b) => b.ratio - a.ratio || b.count - a.count);
+
+    return { items };
+}
+
+/* === РЕНДЕР === */
+function renderData(data) {
+    if (!data) return;
+
+    const container = document.getElementById('boardContainer');
+    container.innerHTML = '';
+
+    const col = document.createElement('div');
+    col.className = 'board-column';
+
+    data.items.forEach((item, idx) => {
+        col.appendChild(createItemCard(item, idx));
+    });
+
+    container.appendChild(col);
+
+    checkForIncreases(data.items);
+    updateTime();
+    
+    if (isFirstLoad) {
+        isFirstLoad = false;
+    }
+}
+
+function createItemCard(item, position) {
+    const card = document.createElement('div');
+    card.className = 'agent-card';
+    
+    const isComplete = item.ratio >= 1.0;
+    
+    if (position === 0) {
+        card.classList.add('gold');
+        const medal = document.createElement('div');
+        medal.className = 'medal';
+        medal.textContent = '👑';
+        card.appendChild(medal);
+    } else if (position === 1) {
+        card.classList.add('silver');
+        const medal = document.createElement('div');
+        medal.className = 'medal';
+        medal.textContent = '🥈';
+        card.appendChild(medal);
+    } else if (position === 2) {
+        card.classList.add('bronze');
+        const medal = document.createElement('div');
+        medal.className = 'medal';
+        medal.textContent = '🥉';
+        card.appendChild(medal);
+    }
+    
+    // Новогодняя шапка для 100%
+    if (isComplete) {
+        const hat = document.createElement('div');
+        hat.className = 'santa-hat';
+        const hatImg = document.createElement('img');
+        hatImg.src = SANTA_HAT_URL;
+        hatImg.alt = 'Santa Hat';
+        hat.appendChild(hatImg);
+        card.appendChild(hat);
+    }
+    
+    const info = document.createElement('div');
+    info.className = 'agent-info';
+
+    const nameRow = document.createElement('div');
+    nameRow.className = 'agent-name-row';
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'agent-name';
+    nameDiv.textContent = item.stage;
+    nameRow.appendChild(nameDiv);
+
+    const prog = document.createElement('div');
+    prog.className = 'progress-bar-container';
+
+    const bar = document.createElement('div');
+    bar.className = 'progress-bar';
+
+    const fill = document.createElement('div');
+    fill.className = 'progress-bar-fill';
+    fill.id = `progress-${item.key}`;
+    const ratio = item.target > 0 ? Math.min(100, (item.count / item.target) * 100) : 0;
+    fill.style.width = ratio + '%';
+
+    bar.appendChild(fill);
+
+    // Дед Мороз внутри fill - будет автоматически на краю заполнения
+    const santa = document.createElement('div');
+    santa.className = 'santa-claus';
+    santa.id = `santa-${item.key}`;
+    const santaImg = document.createElement('img');
+    santaImg.src = SANTA_IMAGE_URL;
+    santaImg.alt = 'Santa';
+    santa.appendChild(santaImg);
+    
+    fill.appendChild(santa);
+
+    const value = document.createElement('div');
+    value.className = 'progress-value';
+    value.id = `value-${item.key}`;
+    value.textContent = `${item.count} / ${item.target} (${Math.round(ratio)}%)`;
+
+    prog.appendChild(bar);
+    prog.appendChild(value);
+
+    nameRow.appendChild(prog);
+    info.appendChild(nameRow);
+    card.appendChild(info);
+
+    return card;
+}
+
+/* === ОТСЛЕЖИВАНИЕ РОСТА === */
+function checkForIncreases(items) {
+    items.forEach(item => {
+        const k = item.key;
+        const prev = previousData[k];
+
+        if (!isFirstLoad && typeof prev === 'number' && item.count > prev) {
+            const delta = item.count - prev;
+            celebrateIncrease(item, delta);
+        } else {
+            updateProgressBar(item);
+        }
+
+        previousData[k] = item.count;
+    });
+}
+
+function updateProgressBar(item) {
+    const valueEl = document.getElementById(`value-${item.key}`);
+    const progressEl = document.getElementById(`progress-${item.key}`);
+
+    if (progressEl) {
+        const ratio = item.target > 0 ? Math.min(100, (item.count / item.target) * 100) : 0;
+        progressEl.style.width = ratio + '%';
+        if (valueEl) valueEl.textContent = `${item.count} / ${item.target} (${Math.round(ratio)}%)`;
+    }
+}
+
+function celebrateIncrease(item, delta) {
+    const valueEl = document.getElementById(`value-${item.key}`);
+    const progressEl = document.getElementById(`progress-${item.key}`);
+
+    if (valueEl) {
+        valueEl.parentElement.parentElement.parentElement.classList.add('count-increase');
+        setTimeout(() => {
+            valueEl.parentElement.parentElement.parentElement.classList.remove('count-increase');
+        }, 2000);
+    }
+    if (progressEl) {
+        const ratio = item.target > 0 ? Math.min(100, (item.count / item.target) * 100) : 0;
+        progressEl.style.width = ratio + '%';
+        if (valueEl) valueEl.textContent = `${item.count} / ${item.target} (${Math.round(ratio)}%)`;
+    }
+
+    showAgentAnnouncement(item.stage, item.count);
+    showSaleAmount(delta);
+    createEnhancedConfetti();
+    createMoneyRain(delta);
+    createFireworks();
+    showCelebration();
+}
+
+/* === ЭФФЕКТЫ === */
+function showAgentAnnouncement(stageName, count) {
+    const el = document.createElement('div');
+    el.className = 'agent-announcement';
+    el.innerHTML = `🎉 ${String(stageName).toUpperCase()} 🎉<br><span style="font-size:.8em;">Total: ${count}</span>`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+}
+
+function showSaleAmount(amount) {
+    const el = document.createElement('div');
+    el.className = 'sale-amount-popup';
+    el.innerHTML = `💰 +${amount} 💰`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+}
+
+function createEnhancedConfetti() {
+    const colors = ['#60a5fa','#a78bfa','#f472b6','#fbbf24','#34d399','#f87171','#818cf8','#fb923c'];
+    for (let i=0;i<80;i++){
+        setTimeout(()=>{
+            const conf = document.createElement('div');
+            conf.className = 'confetti';
+            conf.style.left = Math.random()*100 + '%';
+            conf.style.top  = '-10px';
+
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+            piece.style.animationDuration = (Math.random()*2+2)+'s';
+            piece.style.animationDelay = Math.random()*0.5+'s';
+
+            conf.appendChild(piece);
+            document.body.appendChild(conf);
+            setTimeout(()=>conf.remove(), 4000);
+        }, i*20);
+    }
+}
+
+function createMoneyRain(amount) {
+    const displayAmount = Math.min(amount, 9999);
+    for (let i=0;i<30;i++){
+        setTimeout(()=>{
+            const money = document.createElement('div');
+            money.className = 'money';
+            money.textContent = `$${displayAmount}`;
+            money.style.left = Math.random()*100 + '%';
+            money.style.top  = '-50px';
+            money.style.animationDelay = Math.random()*0.5+'s';
+            money.style.animationDuration = (Math.random()*2+3)+'s';
+            document.body.appendChild(money);
+            setTimeout(()=>money.remove(), 5000);
+        }, i*80);
+    }
+}
+
+function createFireworks() {
+    for (let i=0;i<8;i++){
+        setTimeout(()=>{
+            const x = Math.random()*window.innerWidth;
+            const y = Math.random()*window.innerHeight/2;
+            const fw = document.createElement('div');
+            fw.className = 'firework';
+            fw.style.left = x+'px';
+            fw.style.bottom = '0';
+            document.body.appendChild(fw);
+            setTimeout(()=>{
+                fw.remove();
+                createSparks(x,y);
+            }, 1200);
+        }, i*250);
+    }
+}
+
+function createSparks(x,y) {
+    const colors = ['#fbbf24','#f59e0b','#ef4444','#10b981','#3b82f6','#a78bfa','#f472b6'];
+    for (let i=0;i<40;i++){
+        const s = document.createElement('div');
+        s.className = 'spark';
+        s.style.left = x+'px';
+        s.style.top  = y+'px';
+        s.style.background = colors[Math.floor(Math.random()*colors.length)];
+        const angle = (Math.PI*2*i)/40;
+        const vel = Math.random()*120 + 60;
+        s.style.setProperty('--x', Math.cos(angle)*vel + 'px');
+        s.style.setProperty('--y', Math.sin(angle)*vel + 'px');
+        document.body.appendChild(s);
+        setTimeout(()=>s.remove(), 1800);
+    }
+}
+
+function showCelebration() {
+    const emojis = ['🎉','🎊','✨','🌟','🔥','💥','🚀','🏆','💰','🎯','⭐','💎'];
+    const emoji = emojis[Math.floor(Math.random()*emojis.length)];
+    const el = document.createElement('div');
+    el.className = 'celebration';
+    el.textContent = emoji;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 2000);
+}
+
+/* === ПРОЧЕЕ === */
+function updateTime(){
+    const now = new Date();
+    document.getElementById('updateTime').textContent =
+        `Последнее обновление: ${now.toLocaleString('ru-RU')}`;
+}
+
+function showError(msg){
+    const container = document.getElementById('boardContainer');
+    container.innerHTML = `<div class="error">${msg}</div>`;
+}
+
+/* === ИНИЦИАЛИЗАЦИЯ === */
+async function init(){
+    createGarland();
+    const data = await fetchData();
+    if (data) renderData(data);
+    createContinuousSnow();
+}
+
+async function autoUpdate(){
+    const data = await fetchData();
+    if (data) renderData(data);
+}
+
+init();
+setInterval(autoUpdate, 150000);
+</script>
+</body>
+</html>
