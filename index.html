@@ -109,27 +109,21 @@
 
         /* ===== КАРТОЧКА ЭЛЕМЕНТА ===== */
         .agent-card{ 
-            background:rgba(30,41,59,.6); border-radius:10px; padding:10px 11px; margin-bottom:12px;
+            background:rgba(30,41,59,.6); border-radius:10px; padding:9px 10px; margin-bottom:12px;
             position:relative; transition:all .3s ease; border:1px solid rgba(99,102,241,.2); overflow:visible; 
         }
         .agent-card:hover{ transform:translateY(-2px) scale(1.02); box-shadow:0 10px 30px rgba(59,130,246,.3); border-color:rgba(99,102,241,.5); }
-        .agent-card.gold{ background:linear-gradient(135deg, rgba(251,191,36,.2), rgba(245,158,11,.3)); border:1px solid #fbbf24; box-shadow:0 0 25px rgba(251,191,36,.5), inset 0 0 15px rgba(251,191,36,.2); }
-        .agent-card.silver{ background:linear-gradient(135deg, rgba(156,163,175,.2), rgba(107,114,128,.3)); border:1px solid #9ca3af; box-shadow:0 0 20px rgba(156,163,175,.5), inset 0 0 15px rgba(156,163,175,.2); }
-        .agent-card.bronze{ background:linear-gradient(135deg, rgba(217,119,6,.2), rgba(180,83,9,.3)); border:1px solid #d97706; box-shadow:0 0 20px rgba(217,119,6,.5), inset 0 0 15px rgba(217,119,6,.2); }
-        
-        .medal{ position:absolute; top:-7px; right:-7px; width:34px; height:34px; font-size:22px; animation:bounce 2s infinite; filter:drop-shadow(0 0 10px rgba(255,255,255,.5)); z-index:2; }
-        @keyframes bounce { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-10px) rotate(10deg)} }
 
         /* ===== НОВОГОДНЯЯ ШАПКА ДЛЯ 100% ===== */
         .santa-hat {
             position: absolute;
             top: -10px;
             left: 5px;
-            width: 32px;
-            height: 32px;
+            width: 29px;
+            height: 29px;
             animation: swingHat 2s ease-in-out infinite;
             filter: drop-shadow(0 0 10px rgba(255,255,255,.8));
-            z-index: 100;
+            z-index: 10001;
         }
         .santa-hat img {
             width: 100%;
@@ -141,16 +135,16 @@
             50% { transform: rotate(8deg); }
         }
 
-        .agent-info{ display:flex; flex-direction:column; gap:7px; position:relative; z-index:1; }
+        .agent-info{ display:flex; flex-direction:column; gap:6px; position:relative; z-index:1; }
         .agent-name-row{ 
             display:grid; 
-            grid-template-columns: 190px 1fr; 
+            grid-template-columns: 170px 1fr; 
             align-items:center; 
             gap:10px; 
         }
         .agent-name{ 
             font-weight:bold; 
-            font-size:0.91em; 
+            font-size:0.82em; 
             color:#e0e0e0; 
             word-break:break-word;
             position: relative;
@@ -163,7 +157,7 @@
             position: relative;
         }
         .progress-bar{
-            flex:1; height:26px; background:rgba(30,41,59,.8); border-radius:15px; overflow:visible; position:relative; border:1px solid rgba(99,102,241,.3);
+            flex:1; height:23px; background:rgba(30,41,59,.8); border-radius:15px; overflow:visible; position:relative; border:1px solid rgba(99,102,241,.3);
         }
         .progress-bar-fill{
             height:100%;
@@ -176,7 +170,7 @@
             animation:shimmer 2s infinite;
         }
         @keyframes shimmer { 0%{left:-100%} 100%{left:100%} }
-        .progress-value{ font-size:.72em; font-weight:bold; color:#60a5fa; min-width:144px; text-align:right; }
+        .progress-value{ font-size:.65em; font-weight:bold; color:#60a5fa; min-width:130px; text-align:right; }
 
         /* ===== ДЕД МОРОЗ ПОВЕРХ ПРОГРЕСС-БАРА ===== */
         .santa-claus {
@@ -184,8 +178,8 @@
             left: 100%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 35px;
-            height: 36px;
+            width: 31px;
+            height: 32px;
             z-index: 10;
             transition: all .8s ease;
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
@@ -283,10 +277,10 @@
             .header h1{ font-size:2em; }
             .board-container{ flex-direction:column; gap:10px; }
             .board-column{ flex:none; max-height:400px; }
-            .progress-value{ min-width:96px; }
-            .santa-claus { width: 28px; height: 29px; }
-            .agent-name-row{ grid-template-columns: 120px 1fr; gap:7px; }
-            .santa-hat { width: 26px; height: 26px; top: -24px; left: 3px; }
+            .progress-value{ min-width:86px; }
+            .santa-claus { width: 25px; height: 26px; }
+            .agent-name-row{ grid-template-columns: 108px 1fr; gap:7px; }
+            .santa-hat { width: 23px; height: 23px; top: -22px; left: 3px; }
         }
 
         @keyframes fadeInDown{ from{opacity:0; transform:translateY(-30px)} to{opacity:1; transform:translateY(0)} }
@@ -459,7 +453,7 @@ function processData(values) {
         }
     });
 
-    items.sort((a,b) => b.ratio - a.ratio || b.count - a.count);
+    // УБРАНА СОРТИРОВКА - элементы отображаются в порядке таблицы
 
     return { items };
 }
@@ -494,25 +488,7 @@ function createItemCard(item, position) {
     
     const isComplete = item.ratio >= 1.0;
     
-    if (position === 0) {
-        card.classList.add('gold');
-        const medal = document.createElement('div');
-        medal.className = 'medal';
-        medal.textContent = '👑';
-        card.appendChild(medal);
-    } else if (position === 1) {
-        card.classList.add('silver');
-        const medal = document.createElement('div');
-        medal.className = 'medal';
-        medal.textContent = '🥈';
-        card.appendChild(medal);
-    } else if (position === 2) {
-        card.classList.add('bronze');
-        const medal = document.createElement('div');
-        medal.className = 'medal';
-        medal.textContent = '🥉';
-        card.appendChild(medal);
-    }
+    // УБРАНЫ ПРИЗОВЫЕ МЕСТА И МЕДАЛИ
     
     // Новогодняя шапка для 100%
     if (isComplete) {
@@ -758,6 +734,4 @@ init();
 setInterval(autoUpdate, 150000);
 </script>
 </body>
-
 </html>
-
