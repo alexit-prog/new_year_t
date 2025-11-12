@@ -463,6 +463,14 @@ function renderData(data) {
     if (!data) return;
 
     const container = document.getElementById('boardContainer');
+    
+    // СОХРАНЕНИЕ ПОЗИЦИИ СКРОЛЛА
+    const boardColumn = container.querySelector('.board-column');
+    let savedScrollTop = 0;
+    if (boardColumn) {
+        savedScrollTop = boardColumn.scrollTop;
+    }
+    
     container.innerHTML = '';
 
     const col = document.createElement('div');
@@ -473,6 +481,11 @@ function renderData(data) {
     });
 
     container.appendChild(col);
+
+    // ВОССТАНОВЛЕНИЕ ПОЗИЦИИ СКРОЛЛА
+    if (savedScrollTop > 0) {
+        col.scrollTop = savedScrollTop;
+    }
 
     checkForIncreases(data.items);
     updateTime();
@@ -731,7 +744,7 @@ async function autoUpdate(){
 }
 
 init();
-setInterval(autoUpdate, 150000);
+setInterval(autoUpdate, 60000);
 </script>
 </body>
 </html>
